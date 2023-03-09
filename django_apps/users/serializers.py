@@ -34,7 +34,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs) -> dict:
         data = super().validate(attrs)
-        data['user_id'] = self.user.id
+        data['id'] = self.user.id
         data['first_name'] = self.user.first_name
         data['last_name'] = self.user.last_name
         data['email'] = self.user.email
@@ -69,9 +69,12 @@ class CustomTokenRefreshPairSerializer(TokenRefreshSerializer):
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
+    id = serializers.CharField(read_only=True)
+    last_login = serializers.DateTimeField(read_only=True)
+
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name']
+        fields = ['id', 'email', 'first_name', 'last_name', 'last_login']
 
 
 class UserDetailSerializer(serializers.ModelSerializer):
