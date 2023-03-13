@@ -1,8 +1,9 @@
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import get_user_model
-from .models import User
+
+from .models import User, UserProfileImages
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -77,7 +78,17 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         fields = ['id', 'email', 'first_name', 'last_name', 'last_login']
 
 
-class UserDetailSerializer(serializers.ModelSerializer):
+class UserDetailSerializer(UserUpdateSerializer):
+    email = serializers.CharField(read_only=True)
+    first_name = serializers.CharField(read_only=True)
+    last_name = serializers.CharField(read_only=True)
+    image = serializers.ImageField(source='profile_images.images', allow_null=True)
+
+    class Meta(UserUpdateSerializer.Meta):
+        fields = UserUpdateSerializer.Meta.fields + ['image']
+
+
+class ProfileImageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
-        fields = ['id', 'email', 'first_name', 'last_name', 'last_login']
+        model = UserProfileImages
+        fields = ['user', 'images']

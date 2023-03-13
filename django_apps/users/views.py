@@ -1,7 +1,8 @@
 from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .services import UserServices
-from .serializers import UserSerializer, CustomTokenObtainPairSerializer, UserUpdateSerializer, UserDetailSerializer
+from .serializers import UserSerializer, CustomTokenObtainPairSerializer, UserUpdateSerializer, UserDetailSerializer, \
+    ProfileImageSerializer
 
 
 # Create your views here.
@@ -42,3 +43,7 @@ class UserDetailUpdateView(RetrieveUpdateDestroyAPIView):
     def perform_destroy(self, instance):
         instance.is_active = False
         instance.delete()
+
+
+class ProfileImageCreateView(CreateAPIView):
+    serializer_class = ProfileImageSerializer

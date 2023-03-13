@@ -31,3 +31,11 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class UserProfileImages(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="profile_images")
+    images = models.ImageField(upload_to='profileImage/')
+
+    def __str__(self):
+        return self.user.email

@@ -9,4 +9,5 @@ urlpatterns = [
     path('verify/', TokenVerifyView.as_view(), name='verify'),
     path('refresh/', views.CustomRefreshJWTView.as_view(), name='refresh'),
     path('user/<int:pk>/', views.UserDetailUpdateView.as_view(), name='user_detail'),
+    path('user/profile/image/', views.ProfileImageCreateView.as_view(), name='user_detail'),
 ]

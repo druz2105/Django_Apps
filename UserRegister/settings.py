@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "corsheaders",
+    "storages",
     'django_apps.users.apps.UsersConfig'
 ]
 
@@ -156,3 +157,6 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': True
 }
+
+MEDIA_URL = 'http://localhost:9001/storage-bucket/'
+DEFAULT_FILE_STORAGE = 'UserRegister.minio_storage.MinIOStorage'

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User
+from .models import User, UserProfileImages
 from django.utils.translation import gettext_lazy as _
 
 
@@ -22,3 +22,4 @@ class CustomUserAdmin(admin.ModelAdmin):
 
 
 admin.site.register(User, CustomUserAdmin)
+admin.site.register(UserProfileImages)
