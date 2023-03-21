@@ -1,4 +1,5 @@
 from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .services import UserServices
 from .serializers import UserSerializer, CustomTokenObtainPairSerializer, UserUpdateSerializer, UserDetailSerializer, \
@@ -10,6 +11,7 @@ from .serializers import UserSerializer, CustomTokenObtainPairSerializer, UserUp
 
 class UserRegisterView(CreateAPIView):
     serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
@@ -24,11 +26,10 @@ class CustomRefreshJWTView(TokenObtainPairView):
 
 
 class UserDetailUpdateView(RetrieveUpdateDestroyAPIView):
-    lookup_field = 'pk'
     service = UserServices()
 
-    def get_queryset(self):
-        return self.service.get_users_queryset({'is_active': True})
+    def get_object(self):
+        return self.request.user
 
     def get_serializer_class(self):
         if self.request.method in ['PUT', "PATCH"]:
@@ -47,3 +48,7 @@ class UserDetailUpdateView(RetrieveUpdateDestroyAPIView):
 
 class ProfileImageCreateView(CreateAPIView):
     serializer_class = ProfileImageSerializer
+
+    def create(self, request, *args, **kwargs):
+        request.data['user'] = request.user.pk
+        return super().create(request, *args, **kwargs)

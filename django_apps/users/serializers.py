@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -82,13 +83,24 @@ class UserDetailSerializer(UserUpdateSerializer):
     email = serializers.CharField(read_only=True)
     first_name = serializers.CharField(read_only=True)
     last_name = serializers.CharField(read_only=True)
-    image = serializers.ImageField(source='profile_images.images', allow_null=True)
+    image = serializers.SerializerMethodField()
 
     class Meta(UserUpdateSerializer.Meta):
         fields = UserUpdateSerializer.Meta.fields + ['image']
+
+    def get_image(self, user):
+        if user.profile_images.first():
+            return user.profile_images.first().images.url
+        return ''
 
 
 class ProfileImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfileImages
         fields = ['user', 'images']
+
+    def create(self, validated_data):
+        user = self.context.get('request').user
+        with transaction.atomic():
+            user.profile_images.all().delete()
+            return super().create(validated_data)
