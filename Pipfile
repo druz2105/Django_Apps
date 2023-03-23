@@ -14,6 +14,7 @@ pillow = "*"
 django-storages = "*"
 minio = "*"
 boto3 = "*"
+drf-yasg = "*"
 
 [dev-packages]
 

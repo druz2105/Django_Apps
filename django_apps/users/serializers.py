@@ -104,3 +104,8 @@ class ProfileImageSerializer(serializers.ModelSerializer):
         with transaction.atomic():
             user.profile_images.all().delete()
             return super().create(validated_data)
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
