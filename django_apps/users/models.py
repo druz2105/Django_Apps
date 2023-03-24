@@ -22,6 +22,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
+    customer_id = models.CharField(max_length=30, null=True, blank=True, editable=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
 
@@ -39,3 +40,11 @@ class UserProfileImages(models.Model):
 
     def __str__(self):
         return self.user.email
+
+
+class UserSubscription(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="subscriptions")
+    subscription_id = models.CharField(max_length=50, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.email} | {self.subscription_id}"

@@ -15,6 +15,7 @@ django-storages = "*"
 minio = "*"
 boto3 = "*"
 drf-yasg = "*"
+stripe = "*"
 
 [dev-packages]
 

@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     "corsheaders",
     "storages",
     "drf_yasg",
-    'django_apps.users.apps.UsersConfig'
+    'django_apps.users.apps.UsersConfig',
+    'django_apps.subscriptions.apps.SubscriptionsConfig'
 ]
 
 MIDDLEWARE = [

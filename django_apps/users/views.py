@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
 from rest_framework.permissions import AllowAny
@@ -15,9 +16,6 @@ from .services import UserServices
 class UserRegisterView(CreateAPIView):
     serializer_class = UserSerializer
     permission_classes = (AllowAny,)
-
-    def post(self, request, *args, **kwargs):
-        return self.create(request, *args, **kwargs)
 
 
 class CustomObtainJWTView(TokenObtainPairView):
@@ -71,10 +69,10 @@ class ChangePasswordView(UpdateAPIView):
 
         if serializer.is_valid():
             # Check old password
-            if not self.get_object().check_password(serializer.data.get("old_password")):
+            if not self.get_object().check_password(serializer.data["old_password"]):
                 return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
             # set_password also hashes the password that the user will get
-            self.get_object().set_password(serializer.data.get("new_password"))
+            self.get_object().set_password(serializer.data["password"])
             self.get_object().save()
             response = {
                 'status': 'success',

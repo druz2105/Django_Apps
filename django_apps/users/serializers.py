@@ -1,26 +1,33 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from helpers.stripe import Stripe
 from .models import User, UserProfileImages
+
+stripe = Stripe()
 
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
+    id = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
-        fields = ['email', 'first_name', 'last_name', 'password']
+        fields = ['id', 'email', 'first_name', 'last_name', 'password']
 
     def create(self, validated_data) -> User:
-        password = validated_data.pop('password')
-        user = super().create(validated_data)
-        user.is_active = True
-        user.set_password(password)
-        user.save()
-        return user
+        with transaction.atomic():
+            password = validated_data.pop('password')
+            user = super().create(validated_data)
+            user.is_active = True
+            user.set_password(password)
+            user.customer_id = stripe.stripe_customer_create({'email': user.email, 'name': f'{user.first_name} {user.last_name}'}).id
+            user.save()
+            return user
 
 
 # noinspection PyUnresolvedReferences
@@ -40,6 +47,13 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data['first_name'] = self.user.first_name
         data['last_name'] = self.user.last_name
         data['email'] = self.user.email
+        try:
+            subscription = self.user.subscriptions.all().first()
+            data['subscription'] = True
+            data["subscription_id"] = subscription.subscription_id
+        except ObjectDoesNotExist:
+            data['subscription'] = False
+
         return data
 
 
@@ -108,4 +122,4 @@ class ProfileImageSerializer(serializers.ModelSerializer):
 
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
-    new_password = serializers.CharField(required=True)
+    password = serializers.CharField(required=True)

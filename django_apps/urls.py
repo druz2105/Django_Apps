@@ -22,6 +22,7 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path('', RedirectView.as_view(url='/swagger/', permanent=True)),
     path('api/v1/user/', include('django_apps.users.urls')),
+    path('api/v1/subscriptions/', include('django_apps.subscriptions.urls')),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('docs/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]
