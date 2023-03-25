@@ -32,6 +32,10 @@ class Stripe:
         return stripe.Customer.create_source(customer_id, source=card_source)
 
     @staticmethod
+    def stripe_subscription_get(sub_id: str):
+        return stripe.Subscription.retrieve(sub_id)
+
+    @staticmethod
     def stripe_subscription_create(customer_id: str, items: list):
         return stripe.Subscription.create(
             customer=customer_id,

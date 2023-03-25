@@ -1,4 +1,4 @@
-from .models import User, UserProfileImages
+from .models import User, UserProfileImages, UserSubscription
 
 
 class UserServices:
@@ -25,3 +25,10 @@ class ProfileImagesServices:
 
     def get_all_images_queryset(self):
         return self.model.objects.all()
+
+
+class UserSubscriptionService:
+    model = UserSubscription
+
+    def create(self, data: dict):
+        return self.model.objects.create(**data)
