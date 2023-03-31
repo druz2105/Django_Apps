@@ -45,7 +45,13 @@ class UserProfileImages(models.Model):
 class UserSubscription(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="subscriptions")
     subscription_id = models.CharField(max_length=50, null=True, blank=True)
+    price_id = models.CharField(max_length=50, null=True, blank=True)
+    prod_id = models.CharField(max_length=50, null=True, blank=True)
     status = models.CharField(max_length=50, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.user.email} | {self.subscription_id}"
+
+    class Meta:
+        ordering = ('-created_at',)

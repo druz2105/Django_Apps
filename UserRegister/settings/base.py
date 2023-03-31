@@ -40,8 +40,13 @@ INSTALLED_APPS = [
     "corsheaders",
     "storages",
     "drf_yasg",
+    "django_crontab",
     'django_apps.users.apps.UsersConfig',
     'django_apps.subscriptions.apps.SubscriptionsConfig'
+]
+
+CRONJOBS = [
+    ('*/5 * * * *', 'django_apps.users.crons.check_sub.check_subscription')
 ]
 
 MIDDLEWARE = [

@@ -1,13 +1,16 @@
-from django.db import transaction
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
-from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView, ListAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenVerifyView
 
+from helpers.stripe import Stripe, CardDetails, PriceDetails, ProductDetails, SubscriptionDetails
 from .serializers import (UserSerializer, CustomTokenObtainPairSerializer, UserUpdateSerializer, UserDetailSerializer,
                           ProfileImageSerializer, ChangePasswordSerializer)
 from .services import UserServices
+
+stripe = Stripe()
 
 
 # Create your views here.
@@ -84,3 +87,27 @@ class ChangePasswordView(UpdateAPIView):
             return Response(response)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserStripeData(ListAPIView):
+    serializer_class = ChangePasswordSerializer
+    service = UserServices()
+
+    def list(self, request, *args, **kwargs):
+        data = {}
+        user: UserServices.model = request.user
+        customer_id = user.customer_id
+        customer = stripe.stripe_customers_retrieve(customer_id)
+        card_details = stripe.stripe_retrieve_card(customer_id, customer.default_source)
+        data['card_details'] = CardDetails(**card_details).get_data()
+        user_subscription = self.service.get_user_subscription(user)
+        if user_subscription:
+            subscription = stripe.stripe_subscription_get(user_subscription.subscription_id)
+            data['subscription'] = SubscriptionDetails(**subscription).get_data()
+        else:
+            data['subscription'] = {}
+        product = stripe.stripe_get_product(user_subscription.prod_id)
+        price = stripe.stripe_get_price(user_subscription.price_id)
+        data['product'] = ProductDetails(**product).get_data()
+        data['price'] = PriceDetails(**price).get_data()
+        return Response(status=status.HTTP_200_OK, data=data)

@@ -1,12 +1,13 @@
 from django.contrib.auth import get_user_model
 from django.db import transaction
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer, \
+    TokenVerifySerializer
+from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
 from helpers.stripe import Stripe
 from .models import User, UserProfileImages
+from .services import UserServices
 
 stripe = Stripe()
 
@@ -25,13 +26,16 @@ class UserSerializer(serializers.ModelSerializer):
             user = super().create(validated_data)
             user.is_active = True
             user.set_password(password)
-            user.customer_id = stripe.stripe_customer_create({'email': user.email, 'name': f'{user.first_name} {user.last_name}'}).id
+            user.customer_id = stripe.stripe_customer_create(
+                {'email': user.email, 'name': f'{user.first_name} {user.last_name}'}).id
             user.save()
             return user
 
 
 # noinspection PyUnresolvedReferences
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    user_service = UserServices()
+
     @classmethod
     def get_token(cls, user) -> dict:
         token = super().get_token(user)
@@ -43,17 +47,15 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs) -> dict:
         data = super().validate(attrs)
-        data['id'] = self.user.id
+        data['user_id'] = self.user.id
         data['first_name'] = self.user.first_name
         data['last_name'] = self.user.last_name
         data['email'] = self.user.email
-        try:
-            subscription = self.user.subscriptions.all().first()
-            data['subscription'] = True
-            data["subscription_id"] = subscription.subscription_id
-        except ObjectDoesNotExist:
-            data['subscription'] = False
-
+        subscription = self.user_service.get_user_subscription(self.user)
+        if subscription:
+            data['subscription_status'] = subscription.status
+        else:
+            data['subscription_status'] = None
         return data
 
 

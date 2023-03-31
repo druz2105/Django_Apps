@@ -16,6 +16,7 @@ minio = "*"
 boto3 = "*"
 drf-yasg = "*"
 stripe = "*"
+django-crontab = "*"
 
 [dev-packages]
 
