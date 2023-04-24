@@ -1,9 +1,8 @@
-from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView, UpdateAPIView, ListAPIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenVerifyView
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 from helpers.stripe import Stripe, CardDetails, PriceDetails, ProductDetails, SubscriptionDetails
 from .serializers import (UserSerializer, CustomTokenObtainPairSerializer, UserUpdateSerializer, UserDetailSerializer,
