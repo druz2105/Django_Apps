@@ -1,1 +1,1 @@
-from .check_sub import check_subscription
+from .check_subscription_status import check_subscription

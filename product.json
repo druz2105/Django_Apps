@@ -1,0 +1,34 @@
+[
+  {
+    "model": "subscriptions.subscriptionplan",
+    "pk": 1,
+    "fields": {
+      "product_id": "prod_NohMSQNkEEdVOm",
+      "price_id": "price_1N33xtFKrBiJkrU1BwWpY9H6"
+    }
+  },
+  {
+    "model": "subscriptions.subscriptionplan",
+    "pk": 2,
+    "fields": {
+      "product_id": "prod_NohO0NRTsqibh6",
+      "price_id": "price_1N33zYFKrBiJkrU1pebjPcv1"
+    }
+  },
+  {
+    "model": "subscriptions.subscriptionplan",
+    "pk": 3,
+    "fields": {
+      "product_id": "prod_NohPEi0H6wcc2f",
+      "price_id": "price_1N33zYFKrBiJkrU1pebjPcv1"
+    }
+  },
+  {
+    "model": "subscriptions.subscriptionplan",
+    "pk": 4,
+    "fields": {
+      "product_id": "prod_NohUhGOHEJDVVx",
+      "price_id": "price_1N345gFKrBiJkrU1tu4vH0oG"
+    }
+  }
+]

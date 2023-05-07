@@ -5,11 +5,11 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Toke
     TokenVerifySerializer
 from rest_framework_simplejwt.tokens import RefreshToken, AccessToken
 
-from helpers.stripe import Stripe
+from helpers.custom_stripe import CustomStripe
 from .models import User, UserProfileImages
 from .services import UserServices
 
-stripe = Stripe()
+stripe = CustomStripe()
 
 
 class UserSerializer(serializers.ModelSerializer):

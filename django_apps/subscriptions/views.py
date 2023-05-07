@@ -1,18 +1,15 @@
-import json
-
 from django.db import transaction
 from rest_framework import status
 from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView
-from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from helpers.stripe import Stripe
+from helpers.custom_stripe import CustomStripe
 from .models import SubscriptionPlan
 from .serializers import SubscriptionPlansListSerializers, SubscriptionPlansCreateSerializers
 from ..users.services import UserServices, UserSubscriptionService
 
-stripe = Stripe()
+stripe = CustomStripe()
 
 
 class SubscriptionPlansListView(ListAPIView):
@@ -101,6 +98,17 @@ class VerifySubscriptionAPIView(RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         user: UserServices.model = request.user
         subscription = self.user_service.get_user_subscription(user)
-        if subscription and subscription.status in ['active', 'trailing']:
+        if subscription and subscription.status in ['active', 'trialing']:
             return Response(status=status.HTTP_200_OK, data={"subscription_status": True})
         return Response(status=status.HTTP_200_OK, data={"subscription_status": False})
+
+
+class CancelSubscriptionAPIView(APIView):
+    user_service = UserServices()
+    user_sub_service = UserSubscriptionService()
+
+    def patch(self, request, *args, **kwargs):
+        user: UserServices.model = request.user
+        subscription = self.user_service.get_user_subscription(user)
+        stripe.stripe_subscription_cancel(subscription.subscription_id)
+        return Response(status=status.HTTP_200_OK, data={"message": "Subscription Cancelled Successfully."})

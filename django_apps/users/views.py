@@ -3,13 +3,14 @@ from rest_framework.generics import CreateAPIView, RetrieveUpdateDestroyAPIView,
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
+from stripe.error import CardError
 
-from helpers.stripe import Stripe, CardDetails, PriceDetails, ProductDetails, SubscriptionDetails
+from helpers.custom_stripe import CustomStripe, CardDetails, PriceDetails, ProductDetails, SubscriptionDetails
 from .serializers import (UserSerializer, CustomTokenObtainPairSerializer, UserUpdateSerializer, UserDetailSerializer,
                           ProfileImageSerializer, ChangePasswordSerializer)
 from .services import UserServices
 
-stripe = Stripe()
+stripe = CustomStripe()
 
 
 # Create your views here.
@@ -88,8 +89,7 @@ class ChangePasswordView(UpdateAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserStripeData(ListAPIView):
-    serializer_class = ChangePasswordSerializer
+class UserStripeDetailsAPI(ListAPIView):
     service = UserServices()
 
     def list(self, request, *args, **kwargs):
@@ -102,6 +102,7 @@ class UserStripeData(ListAPIView):
         user_subscription = self.service.get_user_subscription(user)
         if user_subscription:
             subscription = stripe.stripe_subscription_get(user_subscription.subscription_id)
+            print(subscription)
             data['subscription'] = SubscriptionDetails(**subscription).get_data()
         else:
             data['subscription'] = {}
@@ -110,3 +111,16 @@ class UserStripeData(ListAPIView):
         data['product'] = ProductDetails(**product).get_data()
         data['price'] = PriceDetails(**price).get_data()
         return Response(status=status.HTTP_200_OK, data=data)
+
+
+class UserCardUpdateAPI(UpdateAPIView):
+    def update(self, request, *args, **kwargs):
+        try:
+            user: UserServices.model = request.user
+            customer_id = user.customer_id
+            card_token = stripe.stripe_create_card(request.data)
+            card_source = stripe.stripe_creat_source(card_token.id, customer_id)
+            stripe.stripe_customer_card_update(customer_id, card_source.id)
+            return Response(status=status.HTTP_200_OK, data=request.data)
+        except CardError as e:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={"message": "Card Declined"})

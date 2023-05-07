@@ -1,5 +1,6 @@
-import stripe
 import os
+
+import stripe
 
 stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
 
@@ -16,15 +17,20 @@ class CardDetails:
 
 
 class SubscriptionDetails:
-    def __init__(self, id: str, current_period_start: int, current_period_end: int, status: str, **kwargs):
+    def __init__(self, id: str, current_period_start: int, current_period_end: int, status: str, trial_end: int,
+                 cancel_at_period_end: bool, plan: dict, **kwargs):
         self.sub_id = id
         self.current_period_start = current_period_start
         self.current_period_end = current_period_end
         self.status = status
+        self.trial_end = trial_end
+        self.cancel_at_period_end = cancel_at_period_end
+        self.plan = plan
 
     def get_data(self):
         return {'sub_id': self.sub_id, 'current_period_start': self.current_period_start,
-                'current_period_end': self.current_period_end, 'status': self.status}
+                'current_period_end': self.current_period_end, 'status': self.status, 'trial_end': self.trial_end,
+                'cancel_at_period_end': self.cancel_at_period_end, 'plan': self.plan}
 
 
 class ProductDetails:
@@ -48,7 +54,7 @@ class PriceDetails:
                 "recurring": self.recurring}
 
 
-class Stripe:
+class CustomStripe:
     @staticmethod
     def stripe_get_product(prod_id):
         return stripe.Product.retrieve(prod_id)
@@ -72,11 +78,11 @@ class Stripe:
         return stripe.Customer.create(**data)
 
     @staticmethod
-    def stripe_customer_card_update(cus_id: str, card_id: str):
+    def stripe_customer_card_update(cus_id: str, card_id: str) -> dict:
         return stripe.Customer.modify(cus_id, **{"default_source": card_id})
 
     @staticmethod
-    def stripe_create_card(card: dict):
+    def stripe_create_card(card: dict) -> dict:
         return stripe.Token.create(card=card)
 
     @staticmethod
@@ -92,10 +98,15 @@ class Stripe:
         return stripe.Subscription.retrieve(sub_id)
 
     @staticmethod
+    def stripe_subscription_cancel(sub_id: str):
+        stripe.Subscription.modify(sub_id, cancel_at_period_end=True)
+
+    @staticmethod
     def stripe_subscription_create(customer_id: str, items: list):
         return stripe.Subscription.create(
             customer=customer_id,
             items=items,
+            trial_period_days=28
         )
 
     @staticmethod

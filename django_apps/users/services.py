@@ -46,8 +46,8 @@ class UserSubscriptionService:
         return self.model.objects.create(**data)
 
     def create_or_update(self, data: dict) -> UserSubscription:
-        user_subscription = self.model.objects.get(user=data['user'])
-        if user_subscription:
+        user_subscription = self.model.objects.filter(user=data['user'])
+        if user_subscription.exists():
             user_subscription.subscription_id = data['subscription_id']
             user_subscription.price_id = data['price_id']
             user_subscription.prod_id = data['prod_id']

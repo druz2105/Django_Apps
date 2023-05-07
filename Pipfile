@@ -17,6 +17,7 @@ boto3 = "*"
 drf-yasg = "*"
 stripe = "*"
 django-crontab = "*"
+sendgrid = "*"
 
 [dev-packages]
 

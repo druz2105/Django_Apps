@@ -11,5 +11,6 @@ urlpatterns = [
     path('details/', views.UserDetailUpdateView.as_view(), name='user_detail'),
     path('profile/image/', views.ProfileImageCreateView.as_view(), name='user_image'),
     path('change/password/', views.ChangePasswordView.as_view(), name='change_password'),
-    path('stripe/data/', views.UserStripeData.as_view(), name='stripe_details')
+    path('stripe/details/', views.UserStripeDetailsAPI.as_view(), name='stripe_details'),
+    path('card/update/', views.UserCardUpdateAPI.as_view(), name='card_update')
 ]

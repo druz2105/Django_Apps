@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from helpers.stripe import Stripe
+from helpers.custom_stripe import CustomStripe
 from .models import SubscriptionPlan
 
-stripe = Stripe()
+stripe = CustomStripe()
 
 
 class SubscriptionPlansListSerializers(serializers.ModelSerializer):

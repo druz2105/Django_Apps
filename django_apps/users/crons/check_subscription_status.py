@@ -1,7 +1,7 @@
 from django_apps.users.models import UserSubscription
-from helpers.stripe import Stripe
+from helpers.custom_stripe import CustomStripe
 
-stripe = Stripe()
+stripe = CustomStripe()
 
 
 def check_subscription():
